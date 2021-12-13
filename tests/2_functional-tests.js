@@ -1,66 +1,120 @@
-const chai = require('chai');
+const chai = require("chai");
 const assert = chai.assert;
 
-const server = require('../index');
+const server = require("../index");
 
-const chaiHttp = require('chai-http');
+const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-suite('Functional Tests', function () {
+require("dotenv").config();
+
+suite("Functional Tests", function () {
   this.timeout(5000);
-  suite('Integration tests with chai-http', function () {
+  suite("Integration tests with chai-http", function () {
     // #1
-    test('Test GET /hello with no name', function (done) {
+    test("Test GET /hello with no name", function (done) {
+      // evalua que el contenido de la url en el methodo de request satsfaga los asserts
       chai
         .request(server)
-        .get('/hello')
+        .get("/hello")
         .end(function (err, res) {
-          assert.fail(res.status, 200);
-          assert.fail(res.text, 'hello Guest');
+          assert.equal(res.status, 200);
+          assert.equal(res.text, "hello Guest");
           done();
         });
     });
     // #2
-    test('Test GET /hello with your name', function (done) {
+    test("Test GET /hello with your name", function (done) {
+      // lo mismo que el de arriba, en esta caso se usan queries
       chai
         .request(server)
-        .get('/hello?name=xy_z')
+        .get("/hello?name=xy_z") //supongo que esto pasa de text?var1=text1&var2=text2 a text text1 text2, no ya verifique y el resultado depende de el codigo dentro de esa ruta
         .end(function (err, res) {
-          assert.fail(res.status, 200);
-          assert.fail(res.text, 'hello xy_z');
+          assert.equal(res.status, 200);
+          assert.equal(res.text, "hello xy_z");
           done();
         });
     });
+    // ('hh "hh" ffj');
     // #3
     test('Send {surname: "Colombo"}', function (done) {
       chai
         .request(server)
-        .put('/travellers')
-
+        .put("/travellers")
+        .send({
+          surname: "Colombo",
+        })
         .end(function (err, res) {
-          assert.fail();
+          // const {
+          //   status,
+          //   type,
+          //   body: { name, surname },
+          // } = res;
+          assert.equal(res.status, 200);
+          assert.equal(res.type, "application/json");
+          assert.equal(res.body.name, "Cristoforo");
+          assert.equal(res.body.surname, "Colombo");
 
           done();
         });
     });
+    // // #3.1
+    // test('Send {surname: "Polo"}', function (done) {
+    //   chai
+    //     .request(server)
+    //     .put("/travellers")
+    //     .send({
+    //       surname: "Polo",
+    //     })
+    //     .end(function (err, res) {
+    //       const {
+    //         status,
+    //         type,
+    //         body: { name, surname },
+    //       } = res;
+    //       assert.equal(status, 200);
+    //       assert.equal(type, "application/json");
+    //       assert.equal(name, "Marco");
+    //       assert.equal(surname, "Polo");
+
+    //       done();
+    //     });
+    // });
     // #4
     test('Send {surname: "da Verrazzano"}', function (done) {
-      assert.fail();
-
-      done();
+      chai
+        .request(server)
+        .put("/travellers")
+        .send({
+          surname: "da Verrazzano",
+        })
+        .end((err, res) => {
+          // const {
+          //   status,
+          //   type,
+          //   body: { name, surname },
+          // } = res;
+          assert.equal(res.status, 200);
+          assert.equal(res.type, "application/json");
+          assert.equal(res.body.name, "Giovanni");
+          assert.equal(res.body.surname, "da Verrazzano");
+          done();
+        });
     });
   });
 });
 
-const Browser = require('zombie');
+const Browser = require("zombie");
+Browser.site = process.env.SITE_URL || "http://localhost:3000";
 
-suite('Functional Tests with Zombie.js', function () {
+suite("Functional Tests with Zombie.js", function () {
   this.timeout(5000);
-
-
-
-  suite('Headless browser', function () {
-    test('should have a working "site" property', function() {
+  const browser = new Browser();
+  suiteSetup(function(done) {
+    return browser.visit('/', done);
+  });
+  suite("Headless browser", function () {
+    test('should have a working "site" property', function () {
       assert.isNotNull(browser.site);
     });
   });
