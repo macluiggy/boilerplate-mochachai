@@ -1,3 +1,5 @@
+// en los comentarios $1, $2, $3, $4, etc. quiere decir 'n argumento': primer argumento, segundo argumento, etc.
+
 const chai = require("chai");
 const assert = chai.assert;
 
@@ -105,7 +107,7 @@ suite("Functional Tests", function () {
 });
 
 const Browser = require("zombie");
-Browser.site = process.env.SITE_URL;
+Browser.site = process.env.SITE_URL;//establece el sitio que se va a usar para testear su comportamiento
 
 suite("Functional Tests with Zombie.js", function () {
   this.timeout(5000);
@@ -122,15 +124,26 @@ suite("Functional Tests with Zombie.js", function () {
   suite('"Famous Italian Explorers" form', function () {
     // #5
     test('Submit the surname "Colombo" in the HTML form', function (done) {
-      assert.fail();
-
-      done();
-    });
+      // assert.fail(); //si no se commentaba esta parte el test fallaria sin si quiera probar lo que sigue abajo
+      browser.fill("surname", "Colombo").then(() => {// llena el input con name=surname con "Colombo"
+        browser.pressButton("submit", () => {//luego presiona el boton submit
+          browser.assert.success();//verifica que el status es 200
+          browser.assert.text("span#name", "Cristoforo");// evalua que el texto dentro del elemento del $1 sea $2
+          browser.assert.text("span#surname", "Colombo");// testea que el texto dentro del elemento del $1 sea $2
+          browser.assert.elements("span#dates", 1);// verifica que los elementos del elemento del $1 haya $2 cantidad de los mismos
+        });
+        done();
+      });
+      // done(); // done puede ir aqui o allad
+    })
     // #6
     test('Submit the surname "Vespucci" in the HTML form', function (done) {
-      assert.fail();
+      // assert.fail();ff
+      browser.fill('surname', 'Vespucci').then(() =>{
+        browser
+      })
 
-      done();
+      done() 
     });
   });
 });
