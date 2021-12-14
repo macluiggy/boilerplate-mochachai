@@ -7,6 +7,6 @@ const obj = {
 
 const {
   namex,
-  body: { human   },
-} = obj; 
-console.log(namex, human) 
+  body: { human },
+} = obj;
+console.log(namex, human);
